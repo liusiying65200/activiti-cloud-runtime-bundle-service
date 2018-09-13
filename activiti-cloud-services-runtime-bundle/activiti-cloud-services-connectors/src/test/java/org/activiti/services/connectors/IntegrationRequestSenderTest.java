@@ -11,6 +11,7 @@ import org.activiti.cloud.services.events.converter.RuntimeBundleInfoAppender;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.impl.persistence.entity.integration.IntegrationContextEntity;
 import org.activiti.runtime.api.connector.IntegrationContextBuilder;
+import org.activiti.runtime.api.connector.VariablesMatchHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -92,7 +93,7 @@ public class IntegrationRequestSenderTest {
 
         IntegrationContextEntity contextEntity = mock(IntegrationContextEntity.class);
         given(contextEntity.getId()).willReturn(INTEGRATION_CONTEXT_ID);
-        IntegrationContext integrationContext = new IntegrationContextBuilder().from(contextEntity, delegateExecution);
+        IntegrationContext integrationContext = new IntegrationContextBuilder(new VariablesMatchHelper()).from(contextEntity, delegateExecution, null);
         integrationRequest = new IntegrationRequestImpl(integrationContext);
         integrationRequest.setServiceFullName(APP_NAME);
     }

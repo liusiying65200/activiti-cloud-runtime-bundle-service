@@ -19,7 +19,10 @@ package org.conf.activiti.services.connectors;
 import org.activiti.cloud.services.events.converter.RuntimeBundleInfoAppender;
 import org.activiti.engine.impl.bpmn.parser.factory.DefaultActivityBehaviorFactory;
 import org.activiti.engine.impl.persistence.entity.integration.IntegrationContextManager;
+import org.activiti.model.connector.ConnectorDefinition;
+import org.activiti.runtime.api.connector.ConnectorActionDefinitionFinder;
 import org.activiti.runtime.api.connector.IntegrationContextBuilder;
+import org.activiti.runtime.api.connector.VariablesMatchHelper;
 import org.activiti.services.connectors.behavior.MQServiceTaskBehavior;
 import org.conf.activiti.runtime.api.ConnectorsAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -29,6 +32,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+
+import java.util.List;
 
 @Configuration
 @AutoConfigureBefore(value = ConnectorsAutoConfiguration.class)
@@ -41,11 +46,17 @@ public class CloudConnectorsAutoConfiguration {
                                                        ApplicationEventPublisher eventPublisher,
                                                        ApplicationContext applicationContext,
                                                        IntegrationContextBuilder integrationContextBuilder,
+                                                       List<ConnectorDefinition> connectorDefinitions,
+                                                       ConnectorActionDefinitionFinder connectorActionDefinitionFinder,
+                                                       VariablesMatchHelper variablesMatchHelper,
                                                        RuntimeBundleInfoAppender runtimeBundleInfoAppender) {
         return new MQServiceTaskBehavior(integrationContextManager,
                                          eventPublisher,
                                          applicationContext,
                                          integrationContextBuilder,
+                                         connectorDefinitions,
+                                         connectorActionDefinitionFinder,
+                                         variablesMatchHelper,
                                          runtimeBundleInfoAppender);
     }
 }

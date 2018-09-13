@@ -24,7 +24,9 @@ import org.activiti.cloud.services.events.converter.RuntimeBundleInfoAppender;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.impl.persistence.entity.integration.IntegrationContextEntityImpl;
 import org.activiti.engine.impl.persistence.entity.integration.IntegrationContextManager;
+import org.activiti.runtime.api.connector.ConnectorActionDefinitionFinder;
 import org.activiti.runtime.api.connector.IntegrationContextBuilder;
+import org.activiti.runtime.api.connector.VariablesMatchHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -70,6 +72,12 @@ public class MQServiceTaskBehaviorTest {
     private IntegrationContextBuilder integrationContextBuilder;
 
     @Mock
+    private ConnectorActionDefinitionFinder connectorActionDefinitionFinder;
+
+    @Mock
+    private VariablesMatchHelper variablesMatchHelper;
+
+    @Mock
     private RuntimeBundleInfoAppender runtimeBundleInfoAppender;
 
     @Captor
@@ -80,7 +88,7 @@ public class MQServiceTaskBehaviorTest {
         initMocks(this);
         behavior = spy(new MQServiceTaskBehavior(integrationContextManager,
                                                  eventPublisher, applicationContext,
-                                                 integrationContextBuilder,
+                                                 integrationContextBuilder,null, connectorActionDefinitionFinder, variablesMatchHelper,
                                                  runtimeBundleInfoAppender));
     }
 
@@ -105,7 +113,7 @@ public class MQServiceTaskBehaviorTest {
         given(applicationContext.containsBean(CONNECTOR_TYPE)).willReturn(false);
 
         IntegrationContext integrationContext = mock(IntegrationContext.class);
-        given(integrationContextBuilder.from(entity, execution)).willReturn(integrationContext);
+        given(integrationContextBuilder.from(entity, execution, null)).willReturn(integrationContext);
 
         //when
         behavior.execute(execution);
