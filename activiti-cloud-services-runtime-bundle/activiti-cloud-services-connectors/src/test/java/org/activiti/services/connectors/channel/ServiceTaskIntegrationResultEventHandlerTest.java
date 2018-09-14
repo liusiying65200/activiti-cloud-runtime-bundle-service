@@ -16,10 +16,6 @@
 
 package org.activiti.services.connectors.channel;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import org.activiti.cloud.api.process.model.IntegrationResult;
 import org.activiti.cloud.api.process.model.impl.IntegrationRequestImpl;
 import org.activiti.cloud.api.process.model.impl.IntegrationResultImpl;
@@ -31,7 +27,6 @@ import org.activiti.engine.impl.persistence.entity.integration.IntegrationContex
 import org.activiti.engine.integration.IntegrationContextService;
 import org.activiti.engine.runtime.Execution;
 import org.activiti.engine.runtime.ExecutionQuery;
-import org.activiti.model.connector.ConnectorDefinition;
 import org.activiti.runtime.api.connector.ConnectorActionDefinitionFinder;
 import org.activiti.runtime.api.connector.VariablesMatchHelper;
 import org.activiti.runtime.api.model.impl.IntegrationContextImpl;
@@ -44,14 +39,13 @@ import org.mockito.Mock;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 
+import java.util.Collections;
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ServiceTaskIntegrationResultEventHandlerTest {
@@ -87,9 +81,6 @@ public class ServiceTaskIntegrationResultEventHandlerTest {
 
     @Mock
     private VariablesMatchHelper variablesMatchHelper;
-
-    @Mock
-    private List<ConnectorDefinition> connectorDefinitions;
 
     @Captor
     private ArgumentCaptor<Message<CloudIntegrationResultReceivedImpl>> messageCaptor;
