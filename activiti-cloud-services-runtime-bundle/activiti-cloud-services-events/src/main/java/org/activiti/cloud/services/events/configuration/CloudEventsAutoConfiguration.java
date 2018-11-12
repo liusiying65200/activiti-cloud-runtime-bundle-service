@@ -47,7 +47,7 @@ import org.activiti.cloud.services.events.listeners.CloudVariableDeletedProducer
 import org.activiti.cloud.services.events.listeners.CloudVariableUpdatedProducer;
 import org.activiti.cloud.services.events.listeners.MessageProducerCommandContextCloseListener;
 import org.activiti.cloud.services.events.listeners.ProcessEngineEventsAggregator;
-import org.activiti.cloud.services.events.message.CommandContextMessageBuilderFactory;
+import org.activiti.cloud.services.events.message.ExecutionContextMessageBuilderFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -63,8 +63,8 @@ public class CloudEventsAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public CommandContextMessageBuilderFactory commandContextMessageBuilderFactory(RuntimeBundleProperties properties) {
-        return new CommandContextMessageBuilderFactory(properties);
+    public ExecutionContextMessageBuilderFactory executionContextMessageBuilderFactory(RuntimeBundleProperties properties) {
+        return new ExecutionContextMessageBuilderFactory(properties);
     }
 
     @Bean
@@ -82,9 +82,9 @@ public class CloudEventsAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public MessageProducerCommandContextCloseListener apiMessageProducerCommandContextCloseListener(ProcessEngineChannels processEngineChannels,
-                                                                                                    CommandContextMessageBuilderFactory commandContextMessageBuilderFactory) {
+                                                                                                    ExecutionContextMessageBuilderFactory executionContextMessageBuilderFactory) {
         return new MessageProducerCommandContextCloseListener(processEngineChannels,
-                                                              commandContextMessageBuilderFactory);
+                                                              executionContextMessageBuilderFactory);
     }
 
     @Bean
