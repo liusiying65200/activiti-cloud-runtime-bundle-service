@@ -2,6 +2,7 @@ package org.activiti.cloud.services.rest.api;
 
 import org.activiti.api.process.model.payloads.SignalPayload;
 import org.activiti.api.process.model.payloads.StartProcessPayload;
+import org.activiti.api.process.model.payloads.UpdateProcessPayload;
 import org.activiti.cloud.services.rest.api.resources.ProcessInstanceResource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.MediaTypes;
@@ -28,20 +29,23 @@ public interface ProcessInstanceController {
 
     @RequestMapping(value = "/{processInstanceId}/model",
             method = RequestMethod.GET,
-            produces = "image/svg+xml",
-            consumes = "image/svg+xml")//TODO: remove consumes as it's not consuming anything
+            produces = "image/svg+xml")
     @ResponseBody
     String getProcessDiagram(@PathVariable String processInstanceId);
 
     @RequestMapping(value = "/signal")
     ResponseEntity<Void> sendSignal(@RequestBody SignalPayload signalPayload);
 
-    @RequestMapping(value = "{processInstanceId}/suspend")
+    @RequestMapping(value = "{processInstanceId}/suspend", method = RequestMethod.POST)
     ProcessInstanceResource suspend(@PathVariable String processInstanceId);
 
-    @RequestMapping(value = "{processInstanceId}/activate")
-    ProcessInstanceResource activate(@RequestBody String processInstanceId);
+    @RequestMapping(value = "{processInstanceId}/resume", method = RequestMethod.POST)
+    ProcessInstanceResource resume(@RequestBody String processInstanceId);
 
     @RequestMapping(value = "/{processInstanceId}", method = RequestMethod.DELETE)
     ProcessInstanceResource deleteProcessInstance(@PathVariable String processInstanceId);
+    
+    @RequestMapping(value = "/{processInstanceId}", method = RequestMethod.PUT)
+    ProcessInstanceResource updateProcess(@PathVariable("processInstanceId") String processInstanceId,
+                                    @RequestBody UpdateProcessPayload payload);
 }

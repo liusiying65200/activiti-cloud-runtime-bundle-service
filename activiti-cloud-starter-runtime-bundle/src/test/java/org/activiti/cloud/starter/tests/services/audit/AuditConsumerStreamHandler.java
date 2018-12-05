@@ -16,10 +16,10 @@
 
 package org.activiti.cloud.starter.tests.services.audit;
 
-import static org.activiti.cloud.starter.tests.services.audit.AuditProducerIT.AUDIT_PRODUCER_IT;
-
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,26 +30,32 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Component;
 
-@Profile(AUDIT_PRODUCER_IT)
+@Profile(AuditProducerIT.AUDIT_PRODUCER_IT)
 @Component
 @EnableBinding(AuditConsumer.class)
 public class AuditConsumerStreamHandler {
 
-    private List<CloudRuntimeEvent<?,?>> receivedEvents = Collections.emptyList();
-    private Map<String, Object> receivedHeaders = Collections.emptyMap();
-    
+    private List<CloudRuntimeEvent<?,?>> latestReceivedEvents = Collections.emptyList();
+    private List<CloudRuntimeEvent<?,?>> allReceivedEvents = new ArrayList<>();
+    private Map<String, Object> receivedHeaders = new LinkedHashMap<>();
+
     @StreamListener(AuditConsumer.AUDIT_CONSUMER)
     public void receive(@Headers Map<String, Object> headers, CloudRuntimeEvent<?,?> ... events) {
-        receivedEvents = Arrays.asList(events);
-        receivedHeaders = headers;
+        latestReceivedEvents = Arrays.asList(events);
+        allReceivedEvents.addAll(latestReceivedEvents);
+        receivedHeaders.putAll(headers);
     }
 
-    public List<CloudRuntimeEvent<?, ?>> getReceivedEvents() {
-        return this.receivedEvents;
+    public List<CloudRuntimeEvent<?, ?>> getLatestReceivedEvents() {
+        return this.latestReceivedEvents;
     }
 
     public Map<String, Object> getReceivedHeaders() {
         return receivedHeaders;
+    }
+
+    public List<CloudRuntimeEvent<?, ?>> getAllReceivedEvents() {
+        return allReceivedEvents;
     }
     
 }

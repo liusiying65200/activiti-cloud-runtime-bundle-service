@@ -27,9 +27,11 @@ import org.activiti.cloud.services.events.listeners.CloudActivityStartedProducer
 import org.activiti.cloud.services.events.listeners.CloudProcessCancelledProducer;
 import org.activiti.cloud.services.events.listeners.CloudProcessCompletedProducer;
 import org.activiti.cloud.services.events.listeners.CloudProcessCreatedProducer;
+import org.activiti.cloud.services.events.listeners.CloudProcessDeployedProducer;
 import org.activiti.cloud.services.events.listeners.CloudProcessResumedProducer;
 import org.activiti.cloud.services.events.listeners.CloudProcessStartedProducer;
 import org.activiti.cloud.services.events.listeners.CloudProcessSuspendedProducer;
+import org.activiti.cloud.services.events.listeners.CloudProcessUpdatedProducer;
 import org.activiti.cloud.services.events.listeners.CloudSequenceFlowTakenProducer;
 import org.activiti.cloud.services.events.listeners.CloudTaskActivatedProducer;
 import org.activiti.cloud.services.events.listeners.CloudTaskAssignedProducer;
@@ -48,6 +50,8 @@ import org.activiti.cloud.services.events.listeners.CloudVariableUpdatedProducer
 import org.activiti.cloud.services.events.listeners.MessageProducerCommandContextCloseListener;
 import org.activiti.cloud.services.events.listeners.ProcessEngineEventsAggregator;
 import org.activiti.cloud.services.events.message.ExecutionContextMessageBuilderFactory;
+import org.activiti.engine.RepositoryService;
+import org.activiti.runtime.api.model.impl.APIProcessDefinitionConverter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -231,6 +235,14 @@ public class CloudEventsAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public CloudProcessUpdatedProducer cloudProcessUpdatedProducer(ToCloudProcessRuntimeEventConverter eventConverter,
+                                                             ProcessEngineEventsAggregator eventsAggregator) {
+        return new CloudProcessUpdatedProducer(eventConverter,
+                                            eventsAggregator);
+    } 
+
+    @Bean
+    @ConditionalOnMissingBean
     public ToCloudVariableEventConverter cloudVariableEventConverter(RuntimeBundleInfoAppender runtimeBundleInfoAppender) {
         return new ToCloudVariableEventConverter(runtimeBundleInfoAppender);
     }
@@ -289,6 +301,16 @@ public class CloudEventsAutoConfiguration {
                                                                          ProcessEngineEventsAggregator eventsAggregator) {
         return new CloudSequenceFlowTakenProducer(converter,
                                                   eventsAggregator);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public CloudProcessDeployedProducer cloudProcessDeployedProducer(RepositoryService repositoryService,
+                                                                     APIProcessDefinitionConverter converter,
+                                                                     RuntimeBundleInfoAppender runtimeBundleInfoAppender,
+                                                                     ProcessEngineChannels processEngineChannels) {
+        return new CloudProcessDeployedProducer(repositoryService, converter, runtimeBundleInfoAppender,
+                                                processEngineChannels);
     }
 
 }
