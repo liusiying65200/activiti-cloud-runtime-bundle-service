@@ -1,7 +1,6 @@
 package org.activiti.cloud.starter.tests.services.audit;
 
 import static org.activiti.api.model.shared.event.VariableEvent.VariableEvents.VARIABLE_CREATED;
-import static org.activiti.api.model.shared.event.VariableEvent.VariableEvents.VARIABLE_DELETED;
 import static org.activiti.api.model.shared.event.VariableEvent.VariableEvents.VARIABLE_UPDATED;
 import static org.activiti.api.process.model.events.BPMNActivityEvent.ActivityEvents.ACTIVITY_CANCELLED;
 import static org.activiti.api.process.model.events.BPMNActivityEvent.ActivityEvents.ACTIVITY_STARTED;
@@ -23,6 +22,7 @@ import static org.activiti.api.task.model.events.TaskRuntimeEvent.TaskEvents.TAS
 import static org.activiti.api.task.model.events.TaskRuntimeEvent.TaskEvents.TASK_COMPLETED;
 import static org.activiti.api.task.model.events.TaskRuntimeEvent.TaskEvents.TASK_CREATED;
 import static org.activiti.api.task.model.events.TaskRuntimeEvent.TaskEvents.TASK_SUSPENDED;
+import static org.activiti.api.task.model.events.TaskRuntimeEvent.TaskEvents.TASK_UPDATED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.awaitility.Awaitility.await;
@@ -222,14 +222,11 @@ public class AuditProducerIT {
                                  TASK_COMPLETED.name(),
                                  TASK_CANDIDATE_GROUP_REMOVED.name(),
                                  TASK_CANDIDATE_USER_REMOVED.name(),
-                                 VARIABLE_DELETED.name(),/*task local var deleted*/
                                  BPMNActivityEvent.ActivityEvents.ACTIVITY_COMPLETED.name()/*user task*/,
                                  SEQUENCE_FLOW_TAKEN.name(),
                                  ACTIVITY_STARTED.name()/*end event*/,
                                  BPMNActivityEvent.ActivityEvents.ACTIVITY_COMPLETED.name()/*end event*/,
-                                 VARIABLE_DELETED.name(), /*proc var deleted as proc completes*/
-                                 PROCESS_COMPLETED.name());
-       });
+                                 PROCESS_COMPLETED.name()));
 
         assertThat(streamHandler.getLatestReceivedEvents())
                 .filteredOn(event -> event.getEventType().equals(TASK_COMPLETED))
@@ -316,6 +313,38 @@ public class AuditProducerIT {
             assertThat(((Task) receivedEvents.get(1).getEntity()).getStatus()).isEqualTo(Task.TaskStatus.CANCELLED);
             assertThat(((Task) receivedEvents.get(1).getEntity()).getId()).isEqualTo(task.getId());
             assertThat(receivedEvents.get(1).getEntityId()).isEqualTo(task.getId());
+        });
+    }
+
+
+    @Test
+    public void shouldEmitEventsForTaskUpdate() {
+        //given
+        CloudTask task = taskRestTemplate.createTask(TaskPayloadBuilder.create().withName("my task name 2").withDescription(
+                "long description here").withAssignee("hruser").build());
+
+        //when
+        taskRestTemplate.updateTask(TaskPayloadBuilder.update().withTaskId(task.getId()).withDescription("short description").build());
+
+
+        //then
+        await().untilAsserted(() -> {
+            List<CloudRuntimeEvent<?, ?>> receivedEvents = streamHandler.getLatestReceivedEvents();
+            assertThat(receivedEvents)
+                    .hasSize(1)
+                    .extracting(CloudRuntimeEvent::getEventType,
+                            CloudRuntimeEvent::getEntityId)
+                    .containsExactly(tuple(TASK_UPDATED,
+                                    task.getId())
+                    );
+
+
+            assertThat(receivedEvents.get(0).getEntity()).isNotNull();
+            assertThat(receivedEvents.get(0).getEntity()).isInstanceOf(Task.class);
+            assertThat(((Task) receivedEvents.get(0).getEntity()).getStatus()).isEqualTo(Task.TaskStatus.ASSIGNED);
+            assertThat(((Task) receivedEvents.get(0).getEntity()).getId()).isEqualTo(task.getId());
+            assertThat(receivedEvents.get(0).getEntityId()).isEqualTo(task.getId());
+            assertThat(((Task) receivedEvents.get(0).getEntity()).getDescription()).isEqualTo("short description");
         });
     }
 

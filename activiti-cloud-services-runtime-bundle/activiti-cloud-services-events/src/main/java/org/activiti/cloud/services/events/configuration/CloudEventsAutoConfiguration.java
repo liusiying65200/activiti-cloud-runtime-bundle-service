@@ -252,9 +252,9 @@ public class CloudEventsAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public CloudProcessUpdatedProducer cloudProcessUpdatedProducer(ToCloudProcessRuntimeEventConverter eventConverter,
-                                                             ProcessEngineEventsAggregator eventsAggregator) {
+                                                             ProcessEngineChannels processEngineChannels) {
         return new CloudProcessUpdatedProducer(eventConverter,
-                                            eventsAggregator);
+                                            processEngineChannels);
     } 
 
     @Bean
