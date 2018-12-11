@@ -49,7 +49,6 @@ import org.activiti.cloud.services.events.listeners.CloudVariableDeletedProducer
 import org.activiti.cloud.services.events.listeners.CloudVariableUpdatedProducer;
 import org.activiti.cloud.services.events.listeners.MessageProducerCommandContextCloseListener;
 import org.activiti.cloud.services.events.listeners.ProcessEngineEventsAggregator;
-import org.activiti.cloud.services.events.message.AuditProducerRoutingKeyResolver;
 import org.activiti.cloud.services.events.message.CloudRuntimeEventMessageBuilderFactory;
 import org.activiti.cloud.services.events.message.ExecutionContextMessageBuilderFactory;
 import org.activiti.engine.RepositoryService;
@@ -57,8 +56,14 @@ import org.activiti.runtime.api.model.impl.APIProcessDefinitionConverter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 
 @Configuration
+@PropertySources(value={
+    @PropertySource(value="classpath:/META-INF/activiti-audit-producer.properties"), // default
+    @PropertySource(value="classpath:/activiti-audit-producer.properties", ignoreResourceNotFound = true) // optional override
+})
 public class CloudEventsAutoConfiguration {
     
     @Bean
@@ -67,12 +72,6 @@ public class CloudEventsAutoConfiguration {
         return new RuntimeBundleInfoAppender(properties);
     }
 
-    @Bean
-    @ConditionalOnMissingBean(AuditProducerRoutingKeyResolver.class)
-    public AuditProducerRoutingKeyResolver auditProducerRoutingKeyResolver() {
-        return new AuditProducerRoutingKeyResolver();
-    }
-    
     @Bean
     @ConditionalOnMissingBean
     public CloudRuntimeEventMessageBuilderFactory cloudRuntimeEventMessageBuilderFactory(RuntimeBundleProperties properties) {
