@@ -18,7 +18,6 @@ package org.activiti.cloud.starter.tests.services.audit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,7 @@ import org.springframework.stereotype.Component;
 @EnableBinding(AuditConsumer.class)
 public class AuditConsumerStreamHandler {
 
-    private List<CloudRuntimeEvent<?,?>> latestReceivedEvents = Collections.emptyList();
+    private List<CloudRuntimeEvent<?,?>> latestReceivedEvents = new ArrayList<>();
     private List<CloudRuntimeEvent<?,?>> allReceivedEvents = new ArrayList<>();
     private Map<String, Object> receivedHeaders = new LinkedHashMap<>();
 
@@ -43,7 +42,7 @@ public class AuditConsumerStreamHandler {
     public void receive(@Headers Map<String, Object> headers, CloudRuntimeEvent<?,?> ... events) {
         latestReceivedEvents = Arrays.asList(events);
         allReceivedEvents.addAll(latestReceivedEvents);
-        receivedHeaders.putAll(headers);
+        receivedHeaders = new LinkedHashMap<>(headers);
     }
 
     public List<CloudRuntimeEvent<?, ?>> getLatestReceivedEvents() {
